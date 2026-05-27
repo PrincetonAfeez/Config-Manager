@@ -1,0 +1,16 @@
+[app]
+name = "Demo"
+tags = ["web", "api"]
+
+[[servers]]
+host = "api-1.local"
+port = 8080
+enabled = true
+
+[[servers]]
+host = "api-2.local"
+port = 8081
+enabled = true
+
+[feature_flags]
+beta_ui = true
