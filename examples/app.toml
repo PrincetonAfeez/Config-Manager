@@ -1,0 +1,9 @@
+[app]
+name = "Demo"
+debug = false
+environment = "dev"
+
+[database]
+host = "localhost"
+port = 5432
+username = "demo"
