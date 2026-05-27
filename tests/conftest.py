@@ -10,6 +10,7 @@ from config_manager import Field, Schema
 
 @pytest.fixture
 def basic_schema() -> Schema:
+    """Minimal schema for unit tests (not identical to examples/basic_schema.py)."""
     return Schema(
         {
             "app": {

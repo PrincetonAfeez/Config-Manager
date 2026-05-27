@@ -1,4 +1,4 @@
-# API Reference 
+# API Reference
 
 ## Public exports
 
@@ -10,6 +10,7 @@ from config_manager import (
     Field,
     MISSING,
     Schema,
+    __version__,
     load,
 )
 ```
@@ -34,6 +35,9 @@ schema = Schema({
 })
 ```
 
+`examples/basic_schema.py` re-exports the same schema as `config_manager.example_schema`
+(the CLI default when `--schema` is omitted).
+
 ### Methods
 
 | Method | Description |
@@ -41,9 +45,16 @@ schema = Schema({
 | `schema.fields` | Flat `dict[str, Field]` keyed by dotted path |
 | `schema.defaults()` | Nested dict of default values |
 | `schema.docs()` | Human-readable schema documentation |
-| `schema.is_secret(path)` | Whether a path is treated as secret |
+| `schema.is_secret(path)` | Whether a path is secret (flat paths or `list[].key` patterns) |
+| `schema.secret_paths()` | Paths masked by `to_masked_dict()` |
 | `schema.env_name_for(path, prefix=None)` | Environment variable name |
-| `schema.get_field(path)` | `Field` or `None` |
+| `schema.get_field(path)` | `Field` or `None` for flat schema paths |
+
+### Secret detection
+
+- `Field(..., secret=True)` always masks.
+- Leaf names such as `password`, `token`, and `api_key` are **inferred** as secrets when `secret` is not set.
+- For `Field(list, item_fields={...})`, inference applies to item sub-fields; masked paths look like `servers[].password`.
 
 ## `Field`
 
@@ -61,7 +72,7 @@ schema = Schema({
 | `item_type` | `type` | Scalar type for homogeneous lists |
 | `item_fields` | `dict[str, Field]` | Schema for list-of-object items |
 | `value_type` | `type` | Value type for `dict` fields |
-| `validator` | callable | Custom validation; falsy = reject |
+| `validator` | `Callable[[Any], bool]` | Custom validation; must return truthy to accept |
 | `env_name` | `str` | Override env var name |
 | `cli_name` | `str` | Override CLI `--set` key |
 | `description` | `str` | Documentation text |
@@ -76,34 +87,54 @@ config = load(
     env={"MYAPP_APP__NAME": "x"}, # optional env mapping
     cli_overrides={"app.name": "y"},
     prefix="MYAPP",
-    strict=True,                  # reject unknown keys
-    allow_prefixless_env=False,   # load unprefixed env vars
+    strict=True,                  # reject unknown top-level leaves
+    allow_prefixless_env=False,   # load unprefixed env vars (local dev)
 )
 ```
 
-Returns a frozen `Config`. Raises `ConfigInvalidError` on coercion or
-validation failure.
+Returns a frozen `Config`. Raises **`ConfigInvalidError`** on coercion or
+validation failure (not `CoercionError` / `ValidationError` — those are used by
+lower-level helpers).
+
+### `strict` vs `lenient`
+
+- **`strict=True` (default):** Unknown leaves in the merged raw config fail validation. Keys inside declared `dict` fields and list-of-object items are **not** unknown keys.
+- **`strict=False`:** Unknown leaves are ignored; they are omitted from the resolved config.
 
 ## `Config`
 
 | Method | Description |
 |--------|-------------|
 | `config.get(path, default=MISSING)` | Dotted path lookup; raises `ConfigKeyError` if missing |
-| `config.explain(path)` | Value, type, source, provenance for one key |
-| `config.provenance(path)` | `Provenance` object or `None` |
+| `config.explain(path)` | Value, type, source, provenance for one **flat schema path** |
+| `config.provenance(path)` | `Provenance` or `None` for flat schema paths |
 | `config.to_dict()` | Mutable nested dict (unfrozen copy) |
 | `config.to_masked_dict()` | Dict with secrets replaced by `********` |
 | `config.app.name` | Attribute access on nested sections |
 
 List fields are stored as **immutable tuples** after freeze.
 
+### `explain()` scope
+
+`explain("database.port")` works. `explain("servers[0].host")` raises
+`ConfigError` because indexed paths are not flat schema fields. Use
+`config.get("servers")` and inspect list items in application code.
+
+### Provenance `name` field
+
+| Source | `Provenance.name` |
+|--------|-------------------|
+| TOML / defaults | Dotted path |
+| `.env` / environment | Original variable name (e.g. `MYAPP_DATABASE__PORT`) |
+| CLI | The `--set` key |
+
 ## Error types
 
 | Exception | When |
 |-----------|------|
-| `ConfigInvalidError` | `load()` — combined coercion + validation issues |
-| `CoercionError` | `coerce_config()` failure |
-| `ValidationError` | `validate_config()` failure |
+| `ConfigInvalidError` | **`load()`** — combined coercion + validation issues |
+| `CoercionError` | `coerce_config()` only |
+| `ValidationError` | `validate_config()` only |
 | `SchemaError` | Invalid schema declaration |
 | `ParseError` | Malformed source, merge conflict, duplicate `.env` key |
 | `SourceError` | Missing config file |
@@ -112,7 +143,7 @@ List fields are stored as **immutable tuples** after freeze.
 | `ConfigFrozenError` | Mutation of resolved config |
 
 Each issue in `ConfigInvalidError.issues` is a `ConfigIssue` with `path`,
-`message`, optional `source`, and secret redaction.
+`message`, optional `source`, and secret redaction in `format()`.
 
 ## Lower-level helpers
 
@@ -122,3 +153,8 @@ from config_manager.validation import validate_config, collect_validation_issues
 ```
 
 Use these when building custom pipelines. Prefer `load()` for applications.
+
+## Typing
+
+The package ships a [PEP 561](https://peps.python.org/pep-0561/) marker
+(`py.typed`). Import `__version__` for the installed package version.

@@ -1,4 +1,4 @@
-""" Tests for rich types module """
+"""Tests for rich types module"""
 
 import tempfile
 import unittest

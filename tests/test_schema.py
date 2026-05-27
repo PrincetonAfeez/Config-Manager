@@ -1,4 +1,4 @@
-""" Tests for schema module """
+"""Tests for schema module"""
 
 import unittest
 

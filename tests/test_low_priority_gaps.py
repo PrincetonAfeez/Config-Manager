@@ -1,4 +1,4 @@
-""" Tests for low priority gaps in the library """
+"""Tests for low priority gaps in the library"""
 
 import tempfile
 import unittest
@@ -14,6 +14,18 @@ class SchemaSecretInferenceTests(unittest.TestCase):
         schema = Schema({"database": {"password": Field(str, required=True)}})
         self.assertTrue(schema.is_secret("database.password"))
         self.assertIn("database.password", schema.secret_paths())
+
+    def test_inferred_secret_in_list_item_fields(self):
+        schema = Schema(
+            {
+                "servers": Field(
+                    list,
+                    item_fields={"host": Field(str), "token": Field(str)},
+                )
+            }
+        )
+        self.assertTrue(schema.is_secret("servers[].token"))
+        self.assertIn("servers[].token", schema.secret_paths())
 
     def test_explicit_secret_still_works(self):
         schema = Schema({"api": {"value": Field(str, secret=True)}})

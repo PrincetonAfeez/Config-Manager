@@ -38,7 +38,7 @@ docs/             # Architecture, API, CLI, ADRs, releasing
 
 1. **Match existing style** — 4-space indent, type hints on public APIs.
 2. **Test behavior** — add pytest tests in `tests/` for new features and bug fixes.
-3. **Update docs** — README, `docs/API.md`, `CHANGELOG.md`, or ADRs when behavior changes.
+3. **Update docs** — README, `docs/API.md`, `docs/ARCHITECTURE.md` (including [Limitations](docs/ARCHITECTURE.md#limitations)), `CHANGELOG.md`, or ADRs when behavior changes.
 4. **Keep scope academic** — stdlib-only runtime; no heavy dependencies.
 5. **One concern per change** — small, reviewable diffs.
 

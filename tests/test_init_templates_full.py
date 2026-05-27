@@ -1,7 +1,15 @@
 """Tests for config_manager.init_templates."""
 
+import json
+import tomllib
+from io import BytesIO
+
 from config_manager import Field, Schema
 from config_manager.init_templates import generate_env_example, generate_toml_example
+
+
+def _parse_toml(text: str) -> dict:
+    return tomllib.load(BytesIO(text.encode("utf-8")))
 
 
 def test_generate_env_example_includes_prefix():
@@ -16,6 +24,31 @@ def test_generate_env_example_bool_default():
     schema = Schema({"app": {"debug": Field(bool, default=True)}})
     text = generate_env_example(schema)
     assert "debug=true" in text.lower() or "DEBUG=true" in text
+
+
+def test_generate_env_example_dict_default_json():
+    schema = Schema({"flags": Field(dict, value_type=bool, default={"beta_ui": False})})
+    text = generate_env_example(schema)
+    assert "FLAGS=" in text.upper()
+    assert json.loads(text.split("=", 1)[1].strip()) == {"beta_ui": False}
+
+
+def test_generate_env_example_list_of_objects_json():
+    schema = Schema(
+        {
+            "servers": Field(
+                list,
+                item_fields={
+                    "host": Field(str, required=True),
+                    "port": Field(int, default=8080),
+                },
+            )
+        }
+    )
+    text = generate_env_example(schema)
+    line = next(line for line in text.splitlines() if line.startswith("SERVERS="))
+    payload = json.loads(line.split("=", 1)[1])
+    assert payload == [{"host": "", "port": 8080}]
 
 
 def test_generate_toml_example_sections():
@@ -36,3 +69,29 @@ def test_generate_toml_example_list_default():
     text = generate_toml_example(schema)
     assert "tags" in text
     assert "a" in text
+
+
+def test_generate_toml_example_dict_inline_table():
+    schema = Schema({"flags": Field(dict, value_type=bool, default={"beta_ui": False})})
+    text = generate_toml_example(schema)
+    assert "beta_ui = false" in text
+    _parse_toml(text)
+
+
+def test_generate_toml_example_list_of_objects_array_of_tables():
+    schema = Schema(
+        {
+            "servers": Field(
+                list,
+                item_fields={
+                    "host": Field(str, required=True),
+                    "port": Field(int, default=8080),
+                },
+            )
+        }
+    )
+    text = generate_toml_example(schema)
+    assert "[[servers]]" in text
+    assert 'host = ""' in text
+    assert "port = 8080" in text
+    _parse_toml(text)

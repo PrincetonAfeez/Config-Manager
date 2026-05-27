@@ -1,4 +1,4 @@
-""" Tests for paths module """
+"""Tests for paths module"""
 
 import unittest
 

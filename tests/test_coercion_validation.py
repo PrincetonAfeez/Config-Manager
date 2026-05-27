@@ -1,4 +1,4 @@
-""" Tests for coercion and validation modules """
+"""Tests for coercion and validation modules"""
 
 import unittest
 

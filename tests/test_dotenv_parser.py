@@ -1,4 +1,4 @@
-""" Tests for dotenv parser module """
+"""Tests for dotenv parser module"""
 
 import unittest
 

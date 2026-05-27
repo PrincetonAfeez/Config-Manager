@@ -49,6 +49,9 @@ filterwarnings = ["ignore::DeprecationWarning"]
 [tool.setuptools.packages.find]
 include = ["config_manager*"]
 
+[tool.setuptools.package-data]
+config_manager = ["py.typed"]
+
 [tool.ruff]
 target-version = "py311"
 line-length = 100

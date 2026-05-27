@@ -14,7 +14,7 @@ python -m config_manager.cli --help
 |---------|-------------|
 | `validate` | Load and validate; exit 0 on success |
 | `show` | Print resolved config with secrets masked |
-| `explain KEY` | Explain one dotted key (or report `not set`) |
+| `explain KEY` | Explain one flat schema path (or report `not set`) |
 | `schema` | Print schema documentation |
 | `init` | Scaffold starter `.env` or TOML from schema |
 
@@ -22,14 +22,14 @@ python -m config_manager.cli --help
 
 | Flag | Description |
 |------|-------------|
-| `--schema PATH` | Python file with `schema` object (`path.py:object` supported) |
+| `--schema PATH` | Python file with `schema` object (`path.py:object` supported). Defaults to built-in demo schema. |
 | `--config PATH` | TOML config file |
 | `--env-file PATH` | `.env` file |
-| `--prefix NAME` | Env var prefix (e.g. `MYAPP`) |
-| `--set KEY=VALUE` | CLI override (repeatable) |
-| `--strict` | Reject unknown keys (default) |
-| `--lenient` | Ignore unknown keys |
-| `--allow-prefixless-env` | Load unprefixed real env vars (local dev) |
+| `--prefix NAME` | Env var prefix (e.g. `MYAPP`). Required for env/.env loading unless `--allow-prefixless-env` is set. |
+| `--set KEY=VALUE` | CLI override (repeatable). Supports dotted paths and bracket indices (e.g. `items[0].name=x`). |
+| `--strict` | Reject unknown top-level keys (default) |
+| `--lenient` | Ignore unknown top-level keys |
+| `--allow-prefixless-env` | Load unprefixed real env vars — **local dev only** |
 
 ## Exit codes
 
@@ -43,7 +43,7 @@ python -m config_manager.cli --help
 ## Examples
 
 ```powershell
-# Validate README example
+# Validate README example (examples/basic_schema.py re-exports the built-in schema)
 python -m config_manager.cli validate `
   --schema examples/basic_schema.py `
   --config examples/app.toml `
@@ -55,7 +55,7 @@ python -m config_manager.cli validate `
   --schema examples/rich_schema.py `
   --config examples/servers.toml
 
-# Explain one key
+# Explain one key (flat schema path only)
 python -m config_manager.cli explain database.port `
   --schema examples/basic_schema.py `
   --config examples/app.toml `
@@ -67,6 +67,18 @@ python -m config_manager.cli init `
   --schema examples/basic_schema.py `
   --format env `
   --prefix MYAPP
+
+# Generate starter TOML including array-of-tables for list-of-objects
+python -m config_manager.cli init `
+  --schema examples/rich_schema.py `
+  --format toml
 ```
 
-See [API Reference](API.md) for Python usage.
+## CLI limitations
+
+- **`explain KEY`** accepts only flat schema paths (`database.port`, `servers`), not indexed paths like `servers[0].host`.
+- **`init`** emits JSON strings in `.env` for dict/list-of-object fields and `[[table]]` blocks in TOML where appropriate. Review generated files before committing.
+- **Multiple `--set` flags** targeting the same list can overwrite each other depending on order; prefer a single JSON/list override when replacing entire lists.
+- **`--allow-prefixless-env`** reads unprefixed variables from the process environment — convenient locally, risky in shared CI shells.
+
+See [API Reference](API.md) and [Architecture](ARCHITECTURE.md) for Python usage and pipeline details.

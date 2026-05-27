@@ -63,8 +63,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "explain":
             print(_format_explain(config.explain(args.key)))
             return 0
-        parser.error("missing command")
-        return 3
+        raise AssertionError(f"unhandled command: {args.command!r}")
     except (CoercionError, ValidationError, ConfigInvalidError) as exc:
         _print_issue_error("Config invalid", exc)
         return 1

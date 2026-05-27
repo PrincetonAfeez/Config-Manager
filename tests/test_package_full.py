@@ -15,6 +15,11 @@ def test_all_exports_importable():
         assert hasattr(config_manager, name)
 
 
+def test_version_export():
+    assert isinstance(config_manager.__version__, str)
+    assert config_manager.__version__
+
+
 def test_example_schema_loads():
     mod = importlib.import_module("config_manager.example_schema")
     assert hasattr(mod, "schema")

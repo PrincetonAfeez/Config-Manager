@@ -92,15 +92,38 @@ class Schema:
 
     def is_secret(self, path: str) -> bool:
         field = self.get_field(path)
-        if not field:
-            return False
-        if field.secret:
-            return True
-        leaf = path.rsplit(".", 1)[-1].lower().replace("-", "_")
-        return leaf in _INFERRED_SECRET_NAMES
+        if field is not None:
+            return self._field_is_secret(field, path)
+        if "[]." in path:
+            parent_path, item_key = path.split("[].", 1)
+            parent = self.get_field(parent_path)
+            if parent is None or parent.type_ is not list or parent.item_fields is None:
+                return False
+            item_field = parent.item_fields.get(item_key)
+            if item_field is None:
+                return False
+            return self._field_is_secret(item_field, f"{parent_path}[].{item_key}")
+        return False
 
     def secret_paths(self) -> set[str]:
-        return {path for path in self._flat if self.is_secret(path)}
+        paths = {path for path in self._flat if self.is_secret(path)}
+        for path, field in self._flat.items():
+            if field.type_ is list and field.item_fields:
+                for key, item_field in field.item_fields.items():
+                    item_path = f"{path}[].{key}"
+                    if self._field_is_secret(item_field, item_path):
+                        paths.add(item_path)
+        return paths
+
+    @staticmethod
+    def _field_is_secret(field: Field, path: str) -> bool:
+        if field.secret:
+            return True
+        if "[]." in path:
+            leaf = path.split("[].", 1)[1].lower().replace("-", "_")
+        else:
+            leaf = path.rsplit(".", 1)[-1].lower().replace("-", "_")
+        return leaf in _INFERRED_SECRET_NAMES
 
     def defaults(self) -> dict[str, Any]:
         output: dict[str, Any] = {}

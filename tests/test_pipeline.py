@@ -1,4 +1,4 @@
-""" Tests for the pipeline module """
+"""Tests for the pipeline module"""
 
 import tempfile
 import unittest

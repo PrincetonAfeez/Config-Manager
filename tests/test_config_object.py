@@ -1,4 +1,4 @@
-""" Tests for ConfigObject module """
+"""Tests for ConfigObject module"""
 
 import unittest
 
@@ -62,12 +62,12 @@ class SourcesTests(unittest.TestCase):
         self.assertEqual(data["database"]["port"], "5432")
         self.assertIn("database.port", prov)
 
-    def test_environment_provenance_uses_dotted_path(self):
+    def test_environment_provenance_uses_original_env_name(self):
         schema = Schema({"database": {"port": Field(int)}})
         _, prov = environment_source(
             {"MYAPP_DATABASE__PORT": "5432"}, prefix="MYAPP", schema=schema
         )
-        self.assertEqual(prov["database.port"].name, "database.port")
+        self.assertEqual(prov["database.port"].name, "MYAPP_DATABASE__PORT")
 
     def test_merge_conflict_raises_parse_error(self):
         schema = Schema({"database": {"port": Field(int)}})

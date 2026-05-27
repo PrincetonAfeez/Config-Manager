@@ -9,13 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Comprehensive pytest suite (~329 tests) with ~99% coverage on `config_manager/`
-- `CHANGELOG.md` and [release process](docs/RELEASING.md)
+- `__version__` export and PEP 561 `py.typed` marker
+- Secret inference and masking for list-of-object `item_fields` (e.g. `servers[].password`)
+- Rich-type support in `init` scaffolding (dict inline tables, array-of-tables, JSON env values)
+- Architecture/API/CLI documentation for pipeline limitations and provenance semantics
 
 ### Changed
 
-- Test tree lint/format aligned with Ruff so CI stays green
-- `CONTRIBUTING.md` documents pytest (legacy unittest modules still run)
+- `examples/basic_schema.py` re-exports `config_manager.example_schema` (single source of truth)
+- Environment and `.env` provenance `name` now stores the original variable name
+- Test suite formatted with Ruff; mixed unittest modules retained but normalized
+
+### Fixed
+
+- `init` no longer emits Python `repr()` for dict defaults in TOML/env output
+- `to_masked_dict()` now masks secrets inside list-of-object items
+- CI `ruff format --check` passes on the full test tree
 
 ## [0.2.0] - 2025-05-26
 

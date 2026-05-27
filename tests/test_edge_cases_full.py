@@ -17,6 +17,14 @@ def test_dotenv_double_quote_newline_escape():
     assert parse_dotenv('TEXT="line1\\nline2"')["TEXT"] == "line1\nline2"
 
 
+def test_dotenv_quoted_key_with_equals_inside_double_quotes():
+    assert parse_dotenv('URL="https://example.com?a=1"')["URL"] == "https://example.com?a=1"
+
+
+def test_dotenv_single_quoted_value_allows_hash():
+    assert parse_dotenv("TOKEN='abc#def'")["TOKEN"] == "abc#def"
+
+
 def test_coerce_float_empty_string():
     with pytest.raises(ValueError):
         coerce_value("", Field(float))

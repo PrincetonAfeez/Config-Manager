@@ -1,4 +1,4 @@
-""" Tests for the CLI module """
+"""Tests for the CLI module"""
 
 import tempfile
 import unittest

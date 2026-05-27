@@ -1,4 +1,4 @@
-""" Tests for integration of the CLI with the schema and config modules """
+"""Tests for integration of the CLI with the schema and config modules"""
 
 import subprocess
 import sys
@@ -49,6 +49,28 @@ class ReadmeIntegrationTests(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_rich_schema_init_toml_is_valid(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "config_manager.cli",
+                "init",
+                "--schema",
+                str(ROOT / "examples" / "rich_schema.py"),
+                "--format",
+                "toml",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        import tomllib
+        from io import BytesIO
+
+        tomllib.load(BytesIO(result.stdout.encode("utf-8")))
 
 
 if __name__ == "__main__":

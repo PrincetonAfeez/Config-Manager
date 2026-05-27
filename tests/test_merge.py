@@ -1,4 +1,4 @@
-""" Tests for merge module """
+"""Tests for merge module"""
 
 import unittest
 

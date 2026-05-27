@@ -14,7 +14,7 @@ class _Missing:
 
 MISSING = _Missing()
 
-Validator = Callable[[Any], Any]
+Validator = Callable[[Any], bool]
 
 
 @dataclass(frozen=True)

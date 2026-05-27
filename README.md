@@ -43,10 +43,11 @@ Scalars (`str`, `int`, `float`, `bool`), nested dicts, homogeneous lists
 ## Python API
 
 ```python
-from config_manager import Field, Schema, load, ConfigInvalidError
+from config_manager import Field, Schema, load, ConfigInvalidError, __version__
 
 config = load(schema, env={"MYAPP_APP__NAME": "Demo"}, prefix="MYAPP")
 print(config.get("app.name"))
+print(__version__)
 ```
 
 List fields return **tuples** after freeze. `load()` raises **`ConfigInvalidError`**
@@ -56,7 +57,7 @@ on failure. See the [error matrix in docs/API.md](docs/API.md#error-types).
 
 | Example | Description |
 |---------|-------------|
-| `examples/basic_schema.py` | Standard nested config |
+| `examples/basic_schema.py` | Re-exports built-in demo schema (same as CLI default) |
 | `examples/rich_schema.py` | List-of-objects and dict fields |
 | `examples/servers.toml` | TOML for rich schema |
 

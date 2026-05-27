@@ -1,4 +1,4 @@
-""" Tests for toml loader module """
+"""Tests for toml loader module"""
 
 import tempfile
 import unittest

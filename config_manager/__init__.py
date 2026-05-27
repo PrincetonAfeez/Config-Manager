@@ -1,5 +1,7 @@
 """Validated layered configuration for Python applications."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 from .config import Config
 from .errors import (
     CoercionError,
@@ -17,6 +19,11 @@ from .fields import MISSING, Field
 from .loader import load
 from .schema import Schema
 
+try:
+    __version__ = version("config-manager")
+except PackageNotFoundError:
+    __version__ = "0.2.0"
+
 __all__ = [
     "CoercionError",
     "Config",
@@ -32,5 +39,6 @@ __all__ = [
     "SchemaError",
     "SourceError",
     "ValidationError",
+    "__version__",
     "load",
 ]

@@ -64,7 +64,7 @@ def dotenv_source(
             continue
         dotted, _ = resolved
         safe_set_path(data, dotted, value)
-        provenance[dotted] = Provenance(source="env_file", name=dotted, raw_value=value)
+        provenance[dotted] = Provenance(source="env_file", name=key, raw_value=value)
     return data, provenance
 
 
@@ -96,7 +96,7 @@ def environment_source(
             continue
         dotted, _ = resolved
         safe_set_path(data, dotted, value)
-        provenance[dotted] = Provenance(source="environment", name=dotted, raw_value=value)
+        provenance[dotted] = Provenance(source="environment", name=name, raw_value=value)
     return data, provenance
 
 

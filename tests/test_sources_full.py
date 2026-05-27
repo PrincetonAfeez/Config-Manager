@@ -124,3 +124,10 @@ def test_toml_source_file(tmp_path):
     data, prov = toml_source(toml_file)
     assert data["app"]["name"] == "Demo"
     assert prov["app.name"].name == "app.name"
+
+
+def test_dotenv_source_provenance_uses_original_key(tmp_path, basic_schema):
+    env_file = tmp_path / ".env"
+    env_file.write_text("MYAPP_APP__NAME=demo\n", encoding="utf-8")
+    _, prov = dotenv_source(env_file, prefix="MYAPP", schema=basic_schema)
+    assert prov["app.name"].name == "MYAPP_APP__NAME"
