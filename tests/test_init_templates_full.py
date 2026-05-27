@@ -95,3 +95,31 @@ def test_generate_toml_example_list_of_objects_array_of_tables():
     assert 'host = ""' in text
     assert "port = 8080" in text
     _parse_toml(text)
+
+
+def test_generate_env_example_nullable_default():
+    schema = Schema({"opt": Field(str, nullable=True, default=None)})
+    text = generate_env_example(schema)
+    assert "OPT=" in text.upper()
+
+
+def test_generate_toml_required_list_of_objects_comment():
+    schema = Schema(
+        {
+            "servers": Field(
+                list,
+                required=True,
+                item_fields={"host": Field(str, required=True)},
+            )
+        }
+    )
+    text = generate_toml_example(schema)
+    assert "# required" in text
+    assert "[[servers]]" in text
+    _parse_toml(text)
+
+
+def test_generate_env_example_empty_dict_default():
+    schema = Schema({"meta": Field(dict, default={})})
+    text = generate_env_example(schema)
+    assert "META={}" in text.upper() or "meta={}" in text

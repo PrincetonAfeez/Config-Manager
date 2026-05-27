@@ -41,3 +41,10 @@ def test_mask_nested_no_secrets():
 def test_mask_nested_preserves_non_mapping():
     data = {"tags": ("a", "b")}
     assert mask_nested(data, set())["tags"] == ("a", "b")
+
+
+def test_mask_nested_freeform_dict_inferred_keys():
+    data = {"flags": {"password": "secret", "enabled": True}}
+    masked = mask_nested(data, set(), dict_field_paths={"flags"})
+    assert masked["flags"]["password"] == MASK
+    assert masked["flags"]["enabled"] is True

@@ -9,7 +9,7 @@ from config_manager import Field, Schema
 
 
 @pytest.fixture
-def basic_schema() -> Schema:
+def minimal_schema() -> Schema:
     """Minimal schema for unit tests (not identical to examples/basic_schema.py)."""
     return Schema(
         {
@@ -26,23 +26,9 @@ def basic_schema() -> Schema:
 
 
 @pytest.fixture
-def rich_schema() -> Schema:
-    return Schema(
-        {
-            "app": {
-                "name": Field(str, required=True),
-                "tags": Field(list, default=[], item_type=str),
-            },
-            "servers": Field(
-                list,
-                item_fields={
-                    "host": Field(str, required=True),
-                    "port": Field(int, default=8080),
-                },
-            ),
-            "flags": Field(dict, value_type=bool, default={}),
-        }
-    )
+def basic_schema(minimal_schema: Schema) -> Schema:
+    """Backward-compatible alias for minimal_schema."""
+    return minimal_schema
 
 
 @pytest.fixture

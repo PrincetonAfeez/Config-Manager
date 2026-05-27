@@ -21,8 +21,20 @@ def test_dotenv_quoted_key_with_equals_inside_double_quotes():
     assert parse_dotenv('URL="https://example.com?a=1"')["URL"] == "https://example.com?a=1"
 
 
+def test_dotenv_backslash_escape_inside_double_quotes():
+    assert parse_dotenv(r'KEY="a\"b=c"') == {"KEY": 'a"b=c'}
+
+
 def test_dotenv_single_quoted_value_allows_hash():
     assert parse_dotenv("TOKEN='abc#def'")["TOKEN"] == "abc#def"
+
+
+def test_dotenv_equals_inside_single_quoted_value():
+    assert parse_dotenv("KEY='a=b'")["KEY"] == "a=b"
+
+
+def test_dotenv_escaped_quote_inside_double_quoted_key_segment():
+    assert parse_dotenv(r'MY_KEY="value"') == {"MY_KEY": "value"}
 
 
 def test_coerce_float_empty_string():

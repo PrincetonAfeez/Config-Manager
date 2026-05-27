@@ -71,7 +71,7 @@ ruff check .
 mypy config_manager
 ```
 
-GitHub Actions runs lint, type-check, and pytest on Python 3.11–3.13.
+GitHub Actions runs lint, type-check, and pytest (354 tests, ~97% coverage) on Python 3.11–3.14.
 
 ## License
 

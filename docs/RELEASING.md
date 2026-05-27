@@ -50,7 +50,10 @@ pytest  # from a clean checkout with dev deps
 
 ## PyPI (optional)
 
-When publishing to PyPI for the first time:
+Publishing to PyPI is **optional** for this academic project. The release
+workflow ships GitHub Release artifacts only until you configure publishing.
+
+When the repository URL and PyPI project name are final:
 
 1. Create accounts on [PyPI](https://pypi.org/) and [TestPyPI](https://test.pypi.org/)
 2. Configure trusted publishing or API tokens in GitHub repository secrets

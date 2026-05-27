@@ -123,7 +123,7 @@ These behaviors are intentional but easy to miss:
 | **`--allow-prefixless-env`** | Loads unprefixed environment variables. Useful for local dev; avoid in production shells with many env vars. |
 | **CLI bracket paths** | Keys like `items[0].name` are supported, but multiple `--set` values for the same list are order-dependent; a later `items=[...]` replaces structure built by earlier bracket keys. |
 | **`init` scaffolding** | Generates valid starter files for scalars, homogeneous lists, dicts, and list-of-objects. Complex nested shapes may still need hand-editing. |
-| **Secret masking** | Masks flat schema paths and inferred/`secret=True` fields inside list-of-object items. Does not scan arbitrary keys inside free-form `dict` values. |
+| **Secret masking** | Masks flat schema paths, homogeneous lists with `secret=True`, inferred/`secret=True` fields inside list-of-object items, and inferred secret key names inside free-form `dict` values |
 | **`.env` keys** | Must start with a letter or `_` (stricter than some dotenv tools). |
 
 See also [API Reference](API.md) and [ADR 0005](adr/0005-secrets-masked-not-encrypted.md).

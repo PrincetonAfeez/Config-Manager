@@ -106,7 +106,14 @@ class Schema:
         return False
 
     def secret_paths(self) -> set[str]:
-        paths = {path for path in self._flat if self.is_secret(path)}
+        paths: set[str] = set()
+        for path, field in self._flat.items():
+            if field.type_ is list:
+                if field.item_fields is None and self._field_is_secret(field, path):
+                    paths.add(f"{path}[]")
+                continue
+            if self._field_is_secret(field, path):
+                paths.add(path)
         for path, field in self._flat.items():
             if field.type_ is list and field.item_fields:
                 for key, item_field in field.item_fields.items():
@@ -114,6 +121,29 @@ class Schema:
                     if self._field_is_secret(item_field, item_path):
                         paths.add(item_path)
         return paths
+
+    def dict_field_paths(self) -> set[str]:
+        return {path for path, field in self._flat.items() if field.type_ is dict}
+
+    def path_may_contain_secrets(self, path: str) -> bool:
+        """Whether operator output for this path may include secret material."""
+        if self.is_secret(path):
+            return True
+        field = self.get_field(path)
+        if field is None:
+            return False
+        if field.type_ is dict:
+            return True
+        if field.type_ is list and field.item_fields is None:
+            return self._field_is_secret(field, path)
+        if field.type_ is list and field.item_fields:
+            return any(self.is_secret(f"{path}[].{key}") for key in field.item_fields)
+        return False
+
+    @staticmethod
+    def inferred_secret_leaf(name: str) -> bool:
+        normalized = name.lower().replace("-", "_")
+        return normalized in _INFERRED_SECRET_NAMES
 
     @staticmethod
     def _field_is_secret(field: Field, path: str) -> bool:

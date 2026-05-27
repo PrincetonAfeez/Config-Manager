@@ -1,6 +1,7 @@
 """Tests for package exports and example schemas."""
 
 import importlib
+import importlib.metadata
 
 import config_manager
 from config_manager import __all__
@@ -17,7 +18,16 @@ def test_all_exports_importable():
 
 def test_version_export():
     assert isinstance(config_manager.__version__, str)
-    assert config_manager.__version__
+    assert config_manager.__version__ == "0.3.0"
+
+
+def test_version_fallback_when_not_installed(monkeypatch):
+    def fail(_name: str) -> str:
+        raise importlib.metadata.PackageNotFoundError
+
+    monkeypatch.setattr(importlib.metadata, "version", fail)
+    mod = importlib.reload(config_manager)
+    assert mod.__version__ == "0.3.0"
 
 
 def test_example_schema_loads():

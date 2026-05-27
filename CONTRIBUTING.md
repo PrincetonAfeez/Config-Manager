@@ -29,7 +29,7 @@ pytest --cov=config_manager --cov-report=term-missing
 
 ```
 config_manager/   # Library source
-tests/            # pytest suite (legacy unittest modules still run)
+tests/            # pytest suite
 examples/         # Sample schemas and config files
 docs/             # Architecture, API, CLI, ADRs, releasing
 ```

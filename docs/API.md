@@ -47,6 +47,8 @@ schema = Schema({
 | `schema.docs()` | Human-readable schema documentation |
 | `schema.is_secret(path)` | Whether a path is secret (flat paths or `list[].key` patterns) |
 | `schema.secret_paths()` | Paths masked by `to_masked_dict()` |
+| `schema.path_may_contain_secrets(path)` | Whether operator output for a flat path may include secrets (used by `explain()`) |
+| `schema.dict_field_paths()` | Flat paths declared as `Field(dict, ...)` |
 | `schema.env_name_for(path, prefix=None)` | Environment variable name |
 | `schema.get_field(path)` | `Field` or `None` for flat schema paths |
 
@@ -55,6 +57,8 @@ schema = Schema({
 - `Field(..., secret=True)` always masks.
 - Leaf names such as `password`, `token`, and `api_key` are **inferred** as secrets when `secret` is not set.
 - For `Field(list, item_fields={...})`, inference applies to item sub-fields; masked paths look like `servers[].password`.
+- For `Field(list, item_type=..., secret=True)` (homogeneous lists), each item is masked; pattern `tags[]`.
+- For `Field(dict, ...)` without a fixed sub-schema, dict **keys** matching inferred secret names are masked in output.
 
 ## `Field`
 
@@ -117,8 +121,9 @@ List fields are stored as **immutable tuples** after freeze.
 ### `explain()` scope
 
 `explain("database.port")` works. `explain("servers[0].host")` raises
-`ConfigError` because indexed paths are not flat schema fields. Use
-`config.get("servers")` and inspect list items in application code.
+`ConfigError` because indexed paths are not flat schema fields. For list and
+dict fields, `explain()` returns a **masked** display value when nested secrets
+are present; `raw_value` is redacted in that case.
 
 ### Provenance `name` field
 

@@ -17,13 +17,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install build tools
         run: pip install build
 
       - name: Build sdist and wheel
         run: python -m build
+
+      - name: Verify wheel installs
+        run: |
+          pip install dist/*.whl
+          config-manager --help
+          pip install -e ".[dev]"
+          pytest -q
 
       - name: Upload release artifacts
         uses: softprops/action-gh-release@v2
@@ -33,7 +40,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Uncomment after configuring PyPI trusted publishing or API token:
+      # Optional: publish to PyPI after configuring trusted publishing or PYPI_API_TOKEN.
+      # See docs/RELEASING.md — keep disabled until the repository URL and PyPI project are final.
       # - name: Publish to PyPI
       #   uses: pypa/gh-action-pypi-publish@release/v1
       #   with:

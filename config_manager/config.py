@@ -8,7 +8,7 @@ from typing import Any
 
 from .errors import ConfigError, ConfigFrozenError, ConfigKeyError
 from .fields import MISSING
-from .masking import MASK, mask_nested
+from .masking import MASK, contains_masked, mask_nested, mask_value_at_path
 from .paths import deep_copy, get_path
 from .provenance import Provenance
 from .schema import Schema
@@ -78,27 +78,43 @@ class Config(FrozenConfig):
                 "source": None,
                 "source_name": None,
                 "raw_value": None,
-                "secret": self._schema.is_secret(path),
+                "secret": self._schema.path_may_contain_secrets(path),
             }
         provenance = self._provenance.get(path)
-        secret = self._schema.is_secret(path)
+        flat_secret = self._schema.is_secret(path)
+        mask_whole_value = flat_secret and not (field.type_ is list and field.item_fields is None)
+        display_value = (
+            MASK
+            if mask_whole_value
+            else mask_value_at_path(
+                path,
+                value,
+                secret_paths=self._schema.secret_paths(),
+                dict_field_paths=self._schema.dict_field_paths(),
+            )
+        )
+        exposes_secrets = mask_whole_value or contains_masked(display_value)
         raw_value = provenance.raw_value if provenance else None
         return {
             "path": path,
             "status": "set",
-            "value": MASK if secret else value,
+            "value": display_value,
             "type": field.type_name,
             "source": provenance.source if provenance else None,
             "source_name": provenance.name if provenance else None,
-            "raw_value": MASK if secret else raw_value,
-            "secret": secret,
+            "raw_value": MASK if exposes_secrets and raw_value is not None else raw_value,
+            "secret": exposes_secrets,
         }
 
     def provenance(self, path: str) -> Provenance | None:
         return self._provenance.get(path)  # type: ignore[no-any-return]
 
     def to_masked_dict(self) -> dict[str, Any]:
-        return mask_nested(self.to_dict(), self._schema.secret_paths())
+        return mask_nested(
+            self.to_dict(),
+            self._schema.secret_paths(),
+            dict_field_paths=self._schema.dict_field_paths(),
+        )
 
 
 def _freeze_nested(value: Any) -> Any:

@@ -1,3 +1,5 @@
+# Application settings (see examples/.env.example for database.password via env layers)
+
 [app]
 name = "Demo"
 debug = false
@@ -7,3 +9,4 @@ environment = "dev"
 host = "localhost"
 port = 5432
 username = "demo"
+# password is not stored here — loaded from .env / environment (MYAPP_DATABASE__PASSWORD)
