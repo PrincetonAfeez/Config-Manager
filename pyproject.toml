@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "config-manager"
+version = "0.2.0"
+description = "Layered configuration loading, coercion, validation, masking, and provenance."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Config Manager Contributors" }]
+keywords = ["configuration", "toml", "dotenv", "validation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/princ/config-manager"
+Documentation = "https://github.com/princ/config-manager#readme"
+Repository = "https://github.com/princ/config-manager"
+Changelog = "https://github.com/princ/config-manager/blob/main/CHANGELOG.md"
+Issues = "https://github.com/princ/config-manager/issues"
+
+[project.scripts]
+config-manager = "config_manager.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.13",
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.setuptools.packages.find]
+include = ["config_manager*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["config_manager", "tests", "examples"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
