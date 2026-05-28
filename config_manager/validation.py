@@ -42,7 +42,7 @@ def collect_validation_issues(
         if not has_path(data, path):
             continue
         value = get_path(data, path)
-        issues.extend(_validate_field(path, value, field, schema, provenance))
+        issues.extend(_validate_field(path, value, field, schema, provenance, strict=strict))
 
     unknown_paths = sorted(
         path
@@ -95,6 +95,8 @@ def _validate_field(
     field: Field,
     schema: Schema,
     provenance: Mapping[str, Provenance] | None,
+    *,
+    strict: bool,
 ) -> list[ConfigIssue]:
     issues: list[ConfigIssue] = []
     if value is None:
@@ -173,7 +175,9 @@ def _validate_field(
             _make_issue(path, f"must match regex {field.regex}", value, schema, provenance)
         )
     if field.type_ is list and field.item_fields is not None:
-        issues.extend(_validate_list_objects(path, value, field, schema, provenance))
+        issues.extend(
+            _validate_list_objects(path, value, field, schema, provenance, strict=strict)
+        )
     if field.validator is not None:
         try:
             result = field.validator(value)
@@ -211,6 +215,8 @@ def _validate_list_objects(
     field: Field,
     schema: Schema,
     provenance: Mapping[str, Provenance] | None,
+    *,
+    strict: bool,
 ) -> list[ConfigIssue]:
     issues: list[ConfigIssue] = []
     assert field.item_fields is not None
@@ -227,6 +233,20 @@ def _validate_list_objects(
                 )
             )
             continue
+        if strict:
+            declared = set(field.item_fields)
+            for key in item:
+                if key not in declared:
+                    subpath = f"{item_path}.{key}"
+                    issues.append(
+                        _make_issue(
+                            subpath,
+                            "unknown config key",
+                            item[key],
+                            schema,
+                            provenance,
+                        )
+                    )
         for key, subfield in field.item_fields.items():
             subpath = f"{item_path}.{key}"
             if key not in item:
@@ -235,7 +255,9 @@ def _validate_list_objects(
                         _make_issue(subpath, "required field is missing", None, schema, provenance)
                     )
                 continue
-            issues.extend(_validate_field(subpath, item[key], subfield, schema, provenance))
+            issues.extend(
+                _validate_field(subpath, item[key], subfield, schema, provenance, strict=strict)
+            )
     return issues
 
 

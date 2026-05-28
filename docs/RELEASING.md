@@ -66,9 +66,9 @@ Update `[project.urls]` in `pyproject.toml` if the repository moves:
 
 ```toml
 [project.urls]
-Homepage = "https://github.com/princ/config-manager"
-Documentation = "https://github.com/princ/config-manager#readme"
-Repository = "https://github.com/princ/config-manager"
-Changelog = "https://github.com/princ/config-manager/blob/main/CHANGELOG.md"
-Issues = "https://github.com/princ/config-manager/issues"
+Homepage = "https://github.com/PrincetonAfeez/Config-Manager"
+Documentation = "https://github.com/PrincetonAfeez/Config-Manager#readme"
+Repository = "https://github.com/PrincetonAfeez/Config-Manager"
+Changelog = "https://github.com/PrincetonAfeez/Config-Manager/blob/main/CHANGELOG.md"
+Issues = "https://github.com/PrincetonAfeez/Config-Manager/issues"
 ```

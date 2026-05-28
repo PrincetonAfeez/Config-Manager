@@ -176,6 +176,19 @@ def test_main_invalid_schema_object(tmp_path):
     assert main(["validate", "--schema", str(schema_file)]) == 3
 
 
+def test_cli_usage_error_returns_sixty_four():
+    with pytest.raises(SystemExit) as exc_info:
+        main(["not-a-command"])
+    assert exc_info.value.code == 64
+
+
+def test_cli_version_flag(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--version"])
+    assert exc_info.value.code == 0
+    assert "config-manager" in capsys.readouterr().out
+
+
 def test_load_schema_wrong_object(tmp_path):
     schema_file = tmp_path / "custom.py"
     schema_file.write_text("schema = 'nope'\n", encoding="utf-8")

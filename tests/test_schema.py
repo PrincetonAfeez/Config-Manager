@@ -30,6 +30,16 @@ def test_unsupported_field_type_rejected():
         Schema({"app": {"data": Field(bytes)}})  # type: ignore[arg-type]
 
 
+def test_invalid_schema_key_type_raises_schema_error():
+    with pytest.raises(SchemaError, match="Schema keys must be non-empty strings"):
+        Schema({123: Field(str)})  # type: ignore[dict-item]
+
+
+def test_invalid_schema_node_value_raises_schema_error():
+    with pytest.raises(SchemaError, match="schema values must be Field or mapping"):
+        Schema({"app": "not a field"})
+
+
 def test_distinct_paths_with_same_leaf_name_allowed():
     schema = Schema({"a": {"token": Field(str)}, "b": {"token": Field(str)}})
     assert schema.env_key_map(prefix="MYAPP")["MYAPP_A__TOKEN"] == "a.token"

@@ -82,8 +82,11 @@ With prefix `MYAPP`:
 - `MYAPP_DATABASE__PORT=5432` → `database.port`
 - Custom: `Field(..., env_name="API_TOKEN")` → `MYAPP_API_TOKEN`
 
-Both `.env` and real environment variables follow the same prefix rules when
-`--prefix` is set.
+When `--prefix` is set, both `.env` and real environment variables accept
+prefixed names. `.env` files may also use unprefixed schema env names (e.g.
+`DATABASE__PORT` or `MYAPP_DATABASE__PORT`). Real environment variables without
+the prefix are ignored unless `allow_prefixless_env=True` (CLI:
+`--allow-prefixless-env`).
 
 ## Merge semantics
 
@@ -117,7 +120,7 @@ These behaviors are intentional but easy to miss:
 
 | Topic | Behavior |
 |-------|----------|
-| **`--strict`** | Rejects unknown **top-level** leaves. Keys inside a declared `dict` field or list-of-object items are allowed (free-form content). |
+| **`--strict`** | Rejects unknown **top-level** leaves. Keys inside declared `dict` fields are allowed (free-form content). Keys inside list-of-object items must match `item_fields`. |
 | **`--lenient`** | Unknown keys are ignored during validation; `filter_to_schema()` drops them from the resolved config. |
 | **`explain()` / `provenance()`** | Only flat schema paths (e.g. `database.port`, `servers`). Not `servers[0].host` or dict inner keys. |
 | **`--allow-prefixless-env`** | Loads unprefixed environment variables. Useful for local dev; avoid in production shells with many env vars. |

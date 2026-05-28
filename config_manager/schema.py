@@ -222,14 +222,14 @@ class Schema:
         normalized: SchemaNode = {}
         for key, value in node.items():
             if not isinstance(key, str) or not key:
-                raise TypeError("Schema keys must be non-empty strings")
+                raise SchemaError("Schema keys must be non-empty strings")
             current = f"{path}.{key}" if path else key
             if isinstance(value, Field):
                 normalized[key] = value
             elif isinstance(value, Mapping):
                 normalized[key] = Schema._normalize_node(value, path=current)
             else:
-                raise TypeError(f"{current}: schema values must be Field or mapping")
+                raise SchemaError(f"{current}: schema values must be Field or mapping")
         return normalized
 
     @staticmethod

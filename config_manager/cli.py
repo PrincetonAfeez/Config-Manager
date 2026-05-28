@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from . import __version__
 from .errors import (
     CoercionError,
     ConfigError,
@@ -25,6 +26,12 @@ from .init_templates import generate_env_example, generate_toml_example
 from .loader import load
 from .schema import Schema
 from .sources import normalize_prefix, parse_cli_set
+
+
+class ConfigManagerArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        self.print_usage(sys.stderr)
+        self.exit(64, f"{self.prog}: usage error: {message}\n")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -75,8 +82,8 @@ def main(argv: list[str] | None = None) -> int:
         return 3
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parent = argparse.ArgumentParser(add_help=False)
+def build_parser() -> ConfigManagerArgumentParser:
+    parent = ConfigManagerArgumentParser(add_help=False)
     parent.add_argument("--schema", help="Python schema file, optionally path.py:object")
     parent.add_argument("--config", help="TOML config file")
     parent.add_argument("--env-file", help=".env file")
@@ -93,7 +100,12 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--strict", dest="strict", action="store_true", default=True)
     mode.add_argument("--lenient", dest="strict", action="store_false")
 
-    parser = argparse.ArgumentParser(prog="config-manager")
+    parser = ConfigManagerArgumentParser(prog="config-manager")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
     subcommands = parser.add_subparsers(dest="command", required=True)
     subcommands.add_parser("validate", parents=[parent], help="validate resolved config")
     subcommands.add_parser(

@@ -102,7 +102,7 @@ lower-level helpers).
 
 ### `strict` vs `lenient`
 
-- **`strict=True` (default):** Unknown leaves in the merged raw config fail validation. Keys inside declared `dict` fields and list-of-object items are **not** unknown keys.
+- **`strict=True` (default):** Unknown leaves in the merged raw config fail validation. Keys inside declared `dict` fields are **not** unknown keys (free-form maps). Keys inside list-of-object items must match the field's `item_fields`.
 - **`strict=False`:** Unknown leaves are ignored; they are omitted from the resolved config.
 
 ## `Config`
@@ -158,6 +158,19 @@ from config_manager.validation import validate_config, collect_validation_issues
 ```
 
 Use these when building custom pipelines. Prefer `load()` for applications.
+
+## Supported `.env` syntax
+
+The built-in dotenv parser (`config_manager.dotenv`) supports:
+
+- `KEY=VALUE`
+- `export KEY=VALUE`
+- blank lines and `#` comments
+- inline comments after unquoted values
+- single-quoted and double-quoted values
+- double-quote escapes: `\n`, `\r`, `\t`, `\\`, `\"`
+- line continuation with trailing backslash
+- keys must start with a letter or `_`
 
 ## Typing
 

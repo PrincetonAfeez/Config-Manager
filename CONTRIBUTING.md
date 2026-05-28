@@ -6,11 +6,18 @@ keep changes focused and well tested.
 ## Development setup
 
 ```powershell
-git clone https://github.com/princ/config-manager.git
+git clone https://github.com/PrincetonAfeez/Config-Manager.git
 cd config-manager
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+pip install -r requirements-dev.lock
+pip install -e . --no-deps
+```
+
+To refresh pinned dev dependencies after changing `[project.optional-dependencies]`:
+
+```powershell
+python -m piptools compile pyproject.toml --extra dev -o requirements-dev.lock
 ```
 
 ## Quality checks

@@ -25,11 +25,12 @@ python -m config_manager.cli --help
 | `--schema PATH` | Python file with `schema` object (`path.py:object` supported). Defaults to built-in demo schema. |
 | `--config PATH` | TOML config file |
 | `--env-file PATH` | `.env` file |
-| `--prefix NAME` | Env var prefix (e.g. `MYAPP`). Required for env/.env loading unless `--allow-prefixless-env` is set. |
+| `--prefix NAME` | Env var prefix (e.g. `MYAPP`). Applies to `.env` and real environment variables when provided. Real environment variables are ignored without `--prefix` unless `--allow-prefixless-env` is set. `.env` files may use schema env names with or without the prefix. |
 | `--set KEY=VALUE` | CLI override (repeatable). Supports dotted paths and bracket indices (e.g. `items[0].name=x`). |
-| `--strict` | Reject unknown top-level keys (default) |
+| `--strict` | Reject unknown top-level keys and unknown keys inside list-of-object items (default) |
 | `--lenient` | Ignore unknown top-level keys |
 | `--allow-prefixless-env` | Load unprefixed real env vars — **local dev only** |
+| `--version` | Print program version and exit |
 
 ## Exit codes
 
@@ -39,6 +40,7 @@ python -m config_manager.cli --help
 | `1` | Invalid config (coercion/validation) |
 | `2` | Parse or source error |
 | `3` | Config error (schema load, bad explain key) |
+| `64` | CLI usage error |
 
 ## Examples
 

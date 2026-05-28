@@ -51,12 +51,17 @@ def test_schema_secret_paths(basic_schema):
 
 
 def test_schema_invalid_key_type():
-    with pytest.raises(TypeError):
+    with pytest.raises(SchemaError, match="Schema keys must be non-empty strings"):
         Schema({123: Field(str)})  # type: ignore[dict-item]
 
 
+def test_schema_invalid_empty_key():
+    with pytest.raises(SchemaError, match="Schema keys must be non-empty strings"):
+        Schema({"": Field(str)})
+
+
 def test_schema_invalid_nested_value():
-    with pytest.raises(TypeError):
+    with pytest.raises(SchemaError, match="schema values must be Field or mapping"):
         Schema({"app": "not a field"})
 
 

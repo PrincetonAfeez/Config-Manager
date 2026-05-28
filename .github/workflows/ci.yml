@@ -21,7 +21,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install package and dev tools
-        run: pip install -e ".[dev]"
+        run: |
+          pip install -r requirements-dev.lock
+          pip install -e . --no-deps
 
       - name: Ruff lint
         run: ruff check .

@@ -81,6 +81,42 @@ def test_validate_unknown_key_lenient():
     assert not any("unknown" in i.message for i in issues)
 
 
+def test_validate_list_object_unknown_key_strict():
+    schema = Schema(
+        {
+            "servers": Field(
+                list,
+                item_fields={"host": Field(str, required=True), "port": Field(int, min_value=1)},
+            )
+        }
+    )
+    issues = collect_validation_issues(
+        {"servers": [{"host": "localhost", "extra": "surprise"}]},
+        {"servers": [{"host": "localhost", "extra": "surprise"}]},
+        schema,
+        strict=True,
+    )
+    assert any(i.path == "servers[0].extra" and "unknown config key" in i.message for i in issues)
+
+
+def test_validate_list_object_unknown_key_lenient():
+    schema = Schema(
+        {
+            "servers": Field(
+                list,
+                item_fields={"host": Field(str, required=True)},
+            )
+        }
+    )
+    issues = collect_validation_issues(
+        {"servers": [{"host": "localhost", "extra": "surprise"}]},
+        {"servers": [{"host": "localhost", "extra": "surprise"}]},
+        schema,
+        strict=False,
+    )
+    assert not any("unknown config key" in i.message for i in issues)
+
+
 def test_validate_list_object_items():
     schema = Schema(
         {
