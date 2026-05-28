@@ -39,7 +39,6 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         schema = _load_schema(args.schema)
-        overrides = parse_cli_set(args.set_values)
         if args.command == "schema":
             print(schema.docs())
             return 0
@@ -52,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(generate_toml_example(schema), end="")
             return 0
 
+        overrides = parse_cli_set(args.set_values)
         config = load(
             schema,
             config_file=args.config,

@@ -33,6 +33,11 @@ def test_config_issue_format_secret_redacted():
     assert "secret" not in formatted
 
 
+def test_config_issue_format_secret_missing_omits_value():
+    issue = ConfigIssue("db.password", "required field is missing", secret=True)
+    assert issue.format() == "db.password: required field is missing"
+
+
 def test_config_issue_format_with_source():
     issue = ConfigIssue("app.name", "missing", source="environment")
     assert "(source: environment)" in issue.format()

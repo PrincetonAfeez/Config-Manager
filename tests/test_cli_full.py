@@ -125,6 +125,17 @@ def test_main_schema_command(capsys, tmp_path):
     assert "a" in capsys.readouterr().out
 
 
+def test_main_schema_ignores_unparsed_set_flag(tmp_path, capsys):
+    schema_file = tmp_path / "schema.py"
+    schema_file.write_text(
+        "from config_manager import Field, Schema\nschema = Schema({'a': Field(str)})\n",
+        encoding="utf-8",
+    )
+    code = main(["schema", "--schema", str(schema_file), "--set", "bad"])
+    assert code == 0
+    assert "a" in capsys.readouterr().out
+
+
 def test_main_init_env(tmp_path):
     schema_file = tmp_path / "schema.py"
     schema_file.write_text(

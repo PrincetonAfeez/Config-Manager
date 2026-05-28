@@ -19,14 +19,12 @@ class ConfigIssue:
 
     def format(self) -> str:
         location = self.path or "<root>"
-        display_value = self.value
-        if self.secret and display_value is not None:
-            display_value = "********"
         parts = [f"{location}: {self.message}"]
-        if display_value is not None and not self.secret:
-            parts[0] = f"{location}: {self.message} (value: {display_value!r})"
-        elif self.secret:
-            parts[0] = f"{location}: {self.message} (value: ********)"
+        if self.value is not None:
+            if self.secret:
+                parts[0] = f"{location}: {self.message} (value: ********)"
+            else:
+                parts[0] = f"{location}: {self.message} (value: {self.value!r})"
         if self.source:
             parts[0] = f"{parts[0]} (source: {self.source})"
         return parts[0]
