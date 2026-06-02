@@ -68,3 +68,19 @@ def test_load_dotenv_file(tmp_path):
     path = tmp_path / ".env"
     path.write_text("FOO=bar\n", encoding="utf-8")
     assert load_dotenv_file(path) == {"FOO": "bar"}
+
+
+def test_parse_large_dotenv_input():
+    """Many keys parse successfully; the parser does not enforce a size limit."""
+    text = "\n".join(f"KEY_{i}=value_{i}" for i in range(10_000))
+    parsed = parse_dotenv(text)
+    assert parsed["KEY_0"] == "value_0"
+    assert parsed["KEY_9999"] == "value_9999"
+    assert len(parsed) == 10_000
+
+
+def test_parse_large_quoted_value():
+    """Very long quoted values parse successfully; no max-length rejection."""
+    value = "x" * 100_000
+    parsed = parse_dotenv(f'BIG="{value}"')
+    assert parsed["BIG"] == value
